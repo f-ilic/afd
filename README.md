@@ -49,7 +49,7 @@ unzip afd101.zip
 
 ## Create it yourself
 
-*Note: To run the following scripts scripts `cd` into `afd/`*
+*Note: To run the following scripts `cd` into `afd/`*
 
 
 To create it from scratch you need to
@@ -131,5 +131,11 @@ Parts of this project use code from the following repositories:
 
 # Cite
 ```bibtex
-Waiting for google scholar to update index
+@InProceedings{ilic22appearancefree,
+title={Is Appearance Free Action Recognition Possible?},
+author={Ilic, Filip and Pock, Thomas and Wildes, Richard P.},
+booktitle={European Conference on Computer Vision (ECCV)},
+month={October},
+year={2022},
+}
 ```
