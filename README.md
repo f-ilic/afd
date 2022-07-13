@@ -84,6 +84,11 @@ CUDA_VISIBLE_DEVICES=2 python generate_afd.py --src /home/data/ucf101 --dst /hom
 CUDA_VISIBLE_DEVICES=3 python generate_afd.py --src /home/data/ucf101 --dst /home/data/afd101 --start_letter P --end_letter Z
 ```
 
+To generate the optical flow datasets needed for on demand dataloading run:
+```python
+python generate_flow.py --src /path/to/ucf101orafd101/ --dst /some/path/
+```
+
  ## Visualisation & Utilities
 
 We also provide some basic utilities to view AFD data in context of its optical flow and the (regular rgb) video. 

@@ -9,6 +9,7 @@ from torchvision.io import read_video, write_video
 from RAFT.core.raft import RAFT
 from RAFT.core.utils.utils import InputPadder
 from util import batch_warp, firstframe_warp, upsample_flow, warp
+import flowiz as fz
 import torchvision
 torchvision.set_video_backend("video_reader")
 
@@ -49,9 +50,8 @@ def gather_videopaths_in_directory(directory, alphabetical_range=['A','Z']):
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--src', type=str, default='/home/f/datasets/ucf101', help='Path to UCF101')
-    parser.add_argument('--dst', type=str, default='/home/f/datasets/afd101', help='Where to save AFD101')
-    parser.add_argument('--grayscale', type=bool, default=False, help='Default: make AFD in color (3 channel), grayscale==True makes it 1 channel')
+    parser.add_argument('--src', type=str, default='/home/f/datasets/ucf101', help='Path to UCF101 / AFD101')
+    parser.add_argument('--dst', type=str, default='/home/f/datasets/ucf101flow', help='Where to save the optical flow files')
     parser.add_argument('--start_letter', type=str, default='A')
     parser.add_argument('--end_letter', type=str, default='Z')
     parser.add_argument('-images', action='store_true',  help='Saves the dataset as individual images, instead of mp4')
@@ -93,16 +93,16 @@ def main():
         fps = video.get_metadata()['video']['fps'][0]
 
         frame_list = list(frames.permute(0,3,1,2))
-
+        
         if os.path.isfile(save_path):
             print(f"[SKIP] {save_path}")
         else:
             flow = flow_from_video(model, frame_list)
-            afd = firstframe_warp(flow, usecolor=(not args.grayscale))
+            rgbflows = fz.video_flow2color(fz.video_normalized_flow(torch.stack(flow,dim=0)))
             if args.images:
-                save_tensorvideo_as_images(save_path, afd)
+                save_tensorvideo_as_images(save_path, rgbflows)
             else:
-                write_video(save_path, afd, fps=fps)
+                write_video(save_path, rgbflows, fps=fps)
             print(f"[ OK ] {save_path}")
 
 
