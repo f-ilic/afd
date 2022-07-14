@@ -19,9 +19,10 @@ from util import batch_warp, firstframe_warp, upsample_flow, warp
 parser = argparse.ArgumentParser()
 import torchvision
 torchvision.set_video_backend("video_reader")
-from save_helper import save_tensor_list_as_gif
+from save_helper import save_tensor_as_img, save_tensor_list_as_gif
 
 def main():
+    parser.add_argument('--images', type=str, default=None, help='Path where to save individual images')
     parser.add_argument('--upsample', type=int, default=1, help='Upsample image factor, if image too small to calculate optical flow reliably')
 
     args = parser.parse_args()
@@ -36,20 +37,19 @@ def main():
     model.eval()
 
     # collage 1
-    save_path='collage1.gif'
-    video_paths = [
-        '/home/f/datasets/ucf101/PushUps/v_PushUps_g01_c02.avi',
-        '/home/f/datasets/ucf101/HeadMassage/v_HeadMassage_g02_c03.avi',
-        '/home/f/datasets/ucf101/PommelHorse/v_PommelHorse_g02_c03.avi'
-    ]
-    # collage 2
-    # save_path='collage
-    # 2.gif'
+    # save_path='collage1.gif'
     # video_paths = [
-    #     '/home/f/datasets/ucf101/TrampolineJumping/v_TrampolineJumping_g03_c01.avi',
-    #     '/home/f/datasets/ucf101/Archery/v_Archery_g01_c01.avi',
-    #     '/home/f/datasets/ucf101/Knitting/v_Knitting_g02_c02.avi',
+    #     '/home/f/datasets/ucf101/PushUps/v_PushUps_g01_c02.avi',
+    #     '/home/f/datasets/ucf101/HeadMassage/v_HeadMassage_g02_c03.avi',
+    #     '/home/f/datasets/ucf101/PommelHorse/v_PommelHorse_g02_c03.avi'
     # ]
+    # collage 2
+    save_path='collage2.gif'
+    video_paths = [
+        '/home/f/datasets/ucf101/TrampolineJumping/v_TrampolineJumping_g03_c01.avi',
+        '/home/f/datasets/ucf101/Archery/v_Archery_g01_c01.avi',
+        '/home/f/datasets/ucf101/Knitting/v_Knitting_g02_c02.avi',
+    ]
     tmplist = []
     for video_path in video_paths:
         frames = (read_video(video_path)[0]).float()
@@ -73,9 +73,13 @@ def main():
     tmp = torch.cat(shortened_clips, dim=2)
     save_tensor_list_as_gif(list(tmp.permute(0,3,1,2)), path=save_path, duration=frame_duration_ms)
 
-    # SliceViewer(tmp, figsize=(15,5))
+    if args.images != None:
+        print("to make a high quality gif of the generated images:  gifski --fps 30 -o file.gif --quality 100 *.png")
+        Path(join(args.images)).mkdir(parents=True, exist_ok=True)
+        for i in range(tmp.shape[0]):
+            save_tensor_as_img(tmp[i].permute(2,0,1), path=f'{args.images}/{i:04d}.png')
 
-
+    SliceViewer(tmp, figsize=(15,5))
 
 if __name__ == "__main__":
     main()

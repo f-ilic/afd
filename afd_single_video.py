@@ -19,9 +19,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('videopath', type=str, help='Path to a video you want to see as AFD')
 import torchvision
 torchvision.set_video_backend("video_reader")
-from save_helper import save_tensor_list_as_gif
+from save_helper import save_tensor_as_img, save_tensor_list_as_gif
 
 def main():
+    parser.add_argument('--images', type=str, default=None, help='Path where to save individual images')
     parser.add_argument('--gif', type=str, default=None, help='Path where to save output as gif')
     parser.add_argument('--upsample', type=int, default=1, help='Upsample image factor, if image too small to calculate optical flow reliably')
 
@@ -53,6 +54,12 @@ def main():
     if args.gif != None:
         save_tensor_list_as_gif(list(tmp.permute(0,3,1,2)), path=args.gif, duration=frame_duration_ms)
 
+    if args.images != None:
+        print("to make a high quality gif of the generated images:  gifski --fps 30 -o file.gif --quality 100 *.png")
+        Path(join(args.images)).mkdir(parents=True, exist_ok=True)
+        for i in range(tmp.shape[0]):
+            save_tensor_as_img(tmp[i].permute(2,0,1), path=f'{args.images}/{i:04d}.png')
+        
     SliceViewer(tmp, figsize=(15,5))
 
 
